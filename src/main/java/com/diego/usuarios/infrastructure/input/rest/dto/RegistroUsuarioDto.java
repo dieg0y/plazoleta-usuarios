@@ -2,14 +2,10 @@ package com.diego.usuarios.infrastructure.input.rest.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import java.time.LocalDate;
-
-public class UsuarioRequestDto {
+public class RegistroUsuarioDto {
     @NotBlank(message = "El nombre es obligatorio")
     private String nombre;
 
@@ -24,10 +20,6 @@ public class UsuarioRequestDto {
     @Pattern(regexp = "^(?:[0-9]{1,13}|\\+[0-9]{1,12})$", message = "El celular debe contener solo dígitos, puede iniciar con + y no superar los 13 caracteres")
     private String celular;
 
-    @NotNull(message = "La fecha de nacimiento es obligatoria")
-    @Past(message = "La fecha de nacimiento debe ser anterior a la fecha actual")
-    private LocalDate fechaNacimiento;
-
     @NotBlank(message = "El correo es obligatorio")
     @Email(message = "El formato del correo no es válido")
     private String correo;
@@ -36,7 +28,6 @@ public class UsuarioRequestDto {
     @Size(min = 8, message = "La clave debe tener al menos 8 caracteres")
     private String clave;
 
-    // Getters y Setters
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
 
@@ -49,12 +40,10 @@ public class UsuarioRequestDto {
     public String getCelular() { return celular; }
     public void setCelular(String celular) { this.celular = celular; }
 
-    public LocalDate getFechaNacimiento() { return fechaNacimiento; }
-    public void setFechaNacimiento(LocalDate fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
-
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
 
     public String getClave() { return clave; }
     public void setClave(String clave) { this.clave = clave; }
+
 }

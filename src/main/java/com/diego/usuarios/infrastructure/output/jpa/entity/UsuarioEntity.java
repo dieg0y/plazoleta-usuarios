@@ -29,7 +29,7 @@ public class UsuarioEntity {
     @Column(nullable = false, length = 13)
     private String celular;
 
-    @Column(name = "fecha_nacimiento", nullable = false)
+    @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
 
     @Column(nullable = false, unique = true)
@@ -40,6 +40,9 @@ public class UsuarioEntity {
 
     @Column(nullable = false)
     private String rol;
+
+    @Column(name = "restaurante_id")
+    private Long restauranteId;
 
     public UsuarioEntity() {}
 
@@ -70,4 +73,7 @@ public class UsuarioEntity {
 
     public String getRol() { return rol; }
     public void setRol(String rol) { this.rol = rol; }
+
+    public Long getRestauranteId() { return restauranteId; }
+    public void setRestauranteId(Long restauranteId) { this.restauranteId = restauranteId; }
 }

@@ -1,11 +1,15 @@
 package com.diego.usuarios.application.usecase;
 
 import com.diego.usuarios.domain.exception.CelularInvalidoException;
+import com.diego.usuarios.domain.exception.CorreoDuplicadoException;
 import com.diego.usuarios.domain.exception.CorreoInvalidoException;
+import com.diego.usuarios.domain.exception.CredencialesInvalidasException;
 import com.diego.usuarios.domain.exception.DocumentoInvalidoException;
 import com.diego.usuarios.domain.exception.MenorDeEdadException;
+import com.diego.usuarios.domain.exception.RestauranteNoAutorizadoException;
 import com.diego.usuarios.domain.model.Usuario;
 import com.diego.usuarios.domain.spi.IPasswordEncoderPort;
+import com.diego.usuarios.domain.spi.IRestauranteOwnershipPort;
 import com.diego.usuarios.domain.spi.IUsuarioPersistencePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +33,9 @@ class UsuarioUseCaseTest {
 
     @Mock
     private IPasswordEncoderPort passwordEncoderPort;
+
+    @Mock
+    private IRestauranteOwnershipPort restauranteOwnershipPort;
 
     @InjectMocks
     private UsuarioUseCase usuarioUseCase;
@@ -94,5 +101,70 @@ class UsuarioUseCaseTest {
 
         assertThrows(CorreoInvalidoException.class, () -> usuarioUseCase.guardarPropietario(usuarioValido));
         verify(usuarioPersistencePort, never()).guardarUsuario(any());
+    }
+
+    @Test
+    @DisplayName("Debe lanzar CorreoDuplicadoException cuando el correo ya existe")
+    void lanzarExcepcionCorreoDuplicado() {
+        when(usuarioPersistencePort.existePorCorreo(usuarioValido.getCorreo())).thenReturn(true);
+
+        assertThrows(CorreoDuplicadoException.class, () -> usuarioUseCase.guardarPropietario(usuarioValido));
+        verify(usuarioPersistencePort, never()).guardarUsuario(any());
+    }
+
+    @Test
+    @DisplayName("Debe guardar un cliente cifrando su clave y asignándole el rol cliente")
+    void guardarCliente() {
+        when(passwordEncoderPort.encode("password123")).thenReturn("claveEncriptadaBCrypt");
+
+        usuarioUseCase.guardarCliente(usuarioValido);
+
+        assertEquals("ROLE_CLIENTE", usuarioValido.getRol());
+        assertEquals("claveEncriptadaBCrypt", usuarioValido.getClave());
+        verify(usuarioPersistencePort).guardarUsuario(usuarioValido);
+    }
+
+    @Test
+    @DisplayName("Debe impedir que un propietario cree empleados para un restaurante ajeno")
+    void impedirEmpleadoEnRestauranteAjeno() {
+        when(restauranteOwnershipPort.esPropietario(10L, 20L, "Bearer token")).thenReturn(false);
+
+        assertThrows(RestauranteNoAutorizadoException.class,
+                () -> usuarioUseCase.guardarEmpleado(usuarioValido, 10L, 20L, "Bearer token"));
+        verify(usuarioPersistencePort, never()).guardarUsuario(any());
+    }
+
+    @Test
+    @DisplayName("Debe crear un empleado vinculado al restaurante del propietario autenticado")
+    void crearEmpleadoParaSuRestaurante() {
+        when(restauranteOwnershipPort.esPropietario(10L, 20L, "Bearer token")).thenReturn(true);
+        when(passwordEncoderPort.encode("password123")).thenReturn("claveEncriptadaBCrypt");
+
+        usuarioUseCase.guardarEmpleado(usuarioValido, 10L, 20L, "Bearer token");
+
+        assertEquals("ROLE_EMPLEADO", usuarioValido.getRol());
+        assertEquals(10L, usuarioValido.getRestauranteId());
+        assertEquals("claveEncriptadaBCrypt", usuarioValido.getClave());
+        verify(usuarioPersistencePort).guardarUsuario(usuarioValido);
+    }
+
+    @Test
+    @DisplayName("Debe autenticar solo con una clave válida")
+    void autenticarUsuario() {
+        when(usuarioPersistencePort.buscarPorCorreo(usuarioValido.getCorreo())).thenReturn(java.util.Optional.of(usuarioValido));
+        when(passwordEncoderPort.matches("password123", "password123")).thenReturn(true);
+        usuarioValido.setClave("password123");
+
+        assertEquals(usuarioValido, usuarioUseCase.autenticar(usuarioValido.getCorreo(), "password123"));
+    }
+
+    @Test
+    @DisplayName("Debe ocultar si falló el correo o la clave en un inicio de sesión inválido")
+    void rechazarCredencialesInvalidas() {
+        when(usuarioPersistencePort.buscarPorCorreo(usuarioValido.getCorreo())).thenReturn(java.util.Optional.of(usuarioValido));
+        when(passwordEncoderPort.matches("wrong-password", usuarioValido.getClave())).thenReturn(false);
+
+        assertThrows(CredencialesInvalidasException.class,
+                () -> usuarioUseCase.autenticar(usuarioValido.getCorreo(), "wrong-password"));
     }
 }

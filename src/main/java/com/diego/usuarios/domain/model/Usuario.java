@@ -12,6 +12,7 @@ public class Usuario {
     private String correo;
     private String clave;
     private String rol;
+    private Long restauranteId;
 
     public Usuario() {}
 
@@ -55,4 +56,7 @@ public class Usuario {
 
     public String getRol() { return rol; }
     public void setRol(String rol) { this.rol = rol; }
+
+    public Long getRestauranteId() { return restauranteId; }
+    public void setRestauranteId(Long restauranteId) { this.restauranteId = restauranteId; }
 }

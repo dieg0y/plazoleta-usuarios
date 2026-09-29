@@ -1,11 +1,17 @@
 package com.diego.usuarios.infrastructure.input.rest;
 
 import com.diego.usuarios.domain.api.IUsuarioServicePort;
+import com.diego.usuarios.infrastructure.input.rest.dto.EmpleadoRequestDto;
+import com.diego.usuarios.infrastructure.input.rest.dto.RegistroUsuarioDto;
 import com.diego.usuarios.infrastructure.input.rest.dto.UsuarioRequestDto;
 import com.diego.usuarios.infrastructure.input.rest.mapper.IUsuarioRequestMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,14 +28,33 @@ public class UsuarioRestController {
         this.usuarioRequestMapper = usuarioRequestMapper;
     }
 
-    @Operation(summary = "Crear un nuevo propietario de restaurante")
+    @Operation(summary = "Crear un nuevo propietario de restaurante",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Propietario creado exitosamente"),
             @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos o faltantes")
     })
     @PostMapping("/propietario")
-    public ResponseEntity<Void> crearPropietario(@RequestBody UsuarioRequestDto dto) {
+    public ResponseEntity<Void> crearPropietario(@Valid @RequestBody UsuarioRequestDto dto) {
         usuarioServicePort.guardarPropietario(usuarioRequestMapper.toDomain(dto));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @PostMapping("/empleado")
+    @Operation(summary = "Crear una cuenta de empleado para un restaurante propio",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<Void> crearEmpleado(@Valid @RequestBody EmpleadoRequestDto dto,
+                                              @AuthenticationPrincipal Jwt jwt,
+                                              @RequestHeader("Authorization") String authorization) {
+        usuarioServicePort.guardarEmpleado(usuarioRequestMapper.toDomain(dto),
+                dto.getRestauranteId(), Long.valueOf(jwt.getSubject()), authorization);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/cliente")
+    public ResponseEntity<Void> crearCliente(@Valid @RequestBody RegistroUsuarioDto dto) {
+        usuarioServicePort.guardarCliente(usuarioRequestMapper.toDomain(dto));
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
 }
