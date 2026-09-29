@@ -148,7 +148,9 @@ Las pruebas cubren reglas de registro, cifrado/validación de contraseña, recha
 
 ## Pendientes antes de una entrega productiva
 
-- [ ] Crear/publicar en GitHub el repositorio separado `plazoleta-restaurantes` y configurar su remoto.
+- [x] Crear y publicar el repositorio separado [`plazoleta-restaurantes`](https://github.com/dieg0y/plazoleta-restaurantes); código disponible en `main`.
+- [x] Publicar las mejoras de usuarios (HU05-HU08) en la rama `feature/HU05-HU08-auth-registration` de `plazoleta-usuarios`.
+- [ ] Separar la implementación en ramas individuales por HU como exige la guía del classroom; las ramas publicadas actuales agrupan varias historias para mantener la integración.
 - [ ] Ejecutar pruebas integradas con ambos servicios activos, mismo `JWT_SECRET` y sus respectivas URLs.
 - [ ] Sustituir el secreto JWT local por uno seguro gestionado fuera del repositorio.
 - [ ] Decidir y aplicar una estrategia de migraciones SQL, perfiles `dev/test/prod` y configuración de MySQL.
