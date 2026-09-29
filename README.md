@@ -22,6 +22,8 @@ Este microservicio gestiona el registro de propietarios, empleados y clientes; v
 
 > HU02-HU04, HU07 y HU09 son registradas aquí para explicar el flujo completo, pero su código vive en el otro microservicio. No marcar una HU como terminada para una entrega conjunta hasta ejecutar las pruebas de ambos repositorios y probar la integración.
 
+La prueba de integración de este repositorio ejecuta ambos servicios y valida de punta a punta el bootstrap/login del administrador, creación del propietario y restaurante, alta del empleado, registro/login del cliente, listado HU09 y operaciones de platos HU03/HU04/HU07.
+
 ## Endpoints
 
 Base local: `http://localhost:8081`
@@ -83,8 +85,8 @@ Content-Type: application/json
 
 - JDK 17 o superior.
 - Maven Wrapper incluido (`mvnw.cmd` para Windows).
-- Para ejecución local se usa H2 en memoria; las cuentas se pierden al apagar el servicio.
-- Para producción/integración, configurar MySQL y reemplazar `ddl-auto=update` por migraciones controladas.
+- Para ejecución local y pruebas se usa H2 en memoria; las cuentas se pierden al apagar el servicio.
+- Flyway aplica migraciones versionadas en H2 y MySQL; Hibernate valida el esquema y no lo crea/actualiza automáticamente.
 
 ## Configuración local y arranque
 
@@ -98,6 +100,22 @@ Desde esta carpeta en PowerShell:
 Swagger UI: `http://localhost:8081/swagger-ui/index.html`  
 OpenAPI JSON: `http://localhost:8081/api-docs`  
 H2 Console local: `http://localhost:8081/h2-console`
+
+### Prueba integrada hasta HU09
+
+Desde el directorio de este repositorio, compila ambos servicios y ejecuta el flujo real entre ellos:
+
+```powershell
+.\mvnw.cmd --batch-mode clean verify
+Push-Location ..\plazoleta-restaurantes
+.\mvnw.cmd --batch-mode clean verify
+Pop-Location
+.\scripts\integration-smoke.ps1 `
+  -UsersJar .\target\plazoleta-usuarios-0.0.1-SNAPSHOT.jar `
+  -RestaurantsJar ..\plazoleta-restaurantes\target\plazoleta-restaurantes-0.0.1-SNAPSHOT.jar
+```
+
+El script usa puertos 18081/18082, bases H2 temporales, genera un secreto JWT aleatorio para la ejecución y detiene los procesos al finalizar. No utiliza ni imprime credenciales reales.
 
 ### Primer administrador
 
@@ -144,17 +162,26 @@ La persistencia local usa H2; el artefacto incluye el driver MySQL para configur
 .\mvnw.cmd clean verify
 ```
 
-Las pruebas cubren reglas de registro, cifrado/validación de contraseña, rechazo de restaurante ajeno, restricciones de acceso HTTP y carga del contexto Spring. La verificación local de HU02-HU04/HU07/HU09 debe ejecutarse además en el repositorio `plazoleta-restaurantes`.
+Las pruebas cubren reglas de registro, cifrado/validación de contraseña, rechazo de restaurante ajeno, restricciones de acceso HTTP y carga del contexto Spring. `scripts/integration-smoke.ps1` comprueba además el flujo HTTP integrado en ambos servicios.
+
+## MySQL y perfil de producción
+
+Cada microservicio usa su propia base MySQL; crea antes las bases `plazoleta_usuarios` y `plazoleta_restaurantes`. Las credenciales de base de datos y un secreto JWT aleatorio de al menos 32 bytes deben inyectarse desde un gestor de secretos o el entorno de despliegue, nunca guardarse en Git.
+
+Para iniciar este servicio con el perfil de producción, configura `SPRING_PROFILES_ACTIVE=prod`, `SPRING_DATASOURCE_URL=jdbc:mysql://<host>:3306/plazoleta_usuarios`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD` y `JWT_SECRET`. Al arrancar, Flyway ejecuta las migraciones de `src/main/resources/db/migration`; Hibernate queda en modo `validate` y la consola H2 deshabilitada. Configura también `RESTAURANTES_URL` para alcanzar el servicio de restaurantes.
+
+El primer administrador debe aprovisionarse por un mecanismo operativo controlado. Si se usa el bootstrap incluido, habilítalo solo durante ese aprovisionamiento, inyecta sus variables `BOOTSTRAP_ADMIN_*` desde el gestor de secretos y desactívalo inmediatamente después. No se habilita por defecto.
+
+La CI en GitHub Actions ejecuta `clean verify` en cada servicio; el workflow de usuarios también compila ambos repositorios y corre la prueba integrada hasta HU09.
 
 ## Pendientes antes de una entrega productiva
 
 - [x] Crear y publicar el repositorio separado [`plazoleta-restaurantes`](https://github.com/dieg0y/plazoleta-restaurantes); código disponible en `main`.
 - [x] Publicar las mejoras de usuarios (HU05-HU08) en la rama `feature/HU05-HU08-auth-registration` de `plazoleta-usuarios`.
-- [ ] Separar la implementación en ramas individuales por HU como exige la guía del classroom; las ramas publicadas actuales agrupan varias historias para mantener la integración.
-- [ ] Ejecutar pruebas integradas con ambos servicios activos, mismo `JWT_SECRET` y sus respectivas URLs.
-- [ ] Sustituir el secreto JWT local por uno seguro gestionado fuera del repositorio.
-- [ ] Decidir y aplicar una estrategia de migraciones SQL, perfiles `dev/test/prod` y configuración de MySQL.
-- [ ] Añadir pruebas de integración para el flujo propietario → restaurante → empleado y casos de servicio dependiente no disponible.
-- [ ] Configurar CI para compilar y probar cada microservicio por separado.
+- [x] Ejecutar la prueba integrada con ambos servicios activos, JWT compartido temporal y H2 independiente por servicio.
+- [x] Añadir migraciones Flyway versionadas y perfiles `prod` con MySQL, validación de esquema y consola H2 deshabilitada.
+- [x] Añadir GitHub Actions para verificar cada microservicio; la CI de usuarios incluye la prueba HTTP integrada hasta HU09.
+- [x] Cubrir el flujo propietario → restaurante → empleado y las operaciones HU01-HU09 con la prueba integrada; las pruebas unitarias verifican rechazo si el servicio de usuarios no está disponible.
+- [ ] Configurar las bases, credenciales y `JWT_SECRET` reales en el gestor de secretos del entorno donde se despliegue; no se han publicado secretos ni se ha desplegado infraestructura.
+- [ ] Separar los cambios en ramas individuales por HU según la guía del classroom. Los cambios actuales están agrupados en ramas funcionales y el servicio de restaurantes está integrado en `main`.
 - [ ] Implementar HU10 en adelante: listar platos, pedidos, flujo de estados, SMS, trazabilidad y métricas.
-- [ ] Crear una rama independiente por HU según la guía del classroom y mantener OpenAPI/pruebas por historia.

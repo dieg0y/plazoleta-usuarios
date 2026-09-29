@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "feature/**"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - name: Verify user service
+        run: ./mvnw --batch-mode --no-transfer-progress clean verify
+
+  integration:
+    runs-on: windows-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: dieg0y/plazoleta-restaurantes
+          path: plazoleta-restaurantes
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - name: Build user service
+        run: .\mvnw.cmd --batch-mode --no-transfer-progress clean verify
+      - name: Build restaurant service
+        working-directory: plazoleta-restaurantes
+        run: .\mvnw.cmd --batch-mode --no-transfer-progress clean verify
+      - name: Run cross-service integration smoke test
+        shell: pwsh
+        run: |
+          ./scripts/integration-smoke.ps1 `
+            -UsersJar "$env:GITHUB_WORKSPACE/target/plazoleta-usuarios-0.0.1-SNAPSHOT.jar" `
+            -RestaurantsJar "$env:GITHUB_WORKSPACE/plazoleta-restaurantes/target/plazoleta-restaurantes-0.0.1-SNAPSHOT.jar"
