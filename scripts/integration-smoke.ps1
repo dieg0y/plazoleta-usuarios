@@ -27,6 +27,7 @@ $environmentNames = @(
     "SPRING_JPA_SHOW_SQL",
     "SPRING_JPA_HIBERNATE_DDL_AUTO",
     "SPRING_JPA_DDL_AUTO",
+    "FLYWAY_ENABLED",
     "BOOTSTRAP_ADMIN_ENABLED",
     "BOOTSTRAP_ADMIN_EMAIL",
     "BOOTSTRAP_ADMIN_PASSWORD",
@@ -119,6 +120,7 @@ try {
     $env:SPRING_DATASOURCE_PASSWORD = ""
     $env:SPRING_JPA_SHOW_SQL = "false"
     $env:SPRING_JPA_HIBERNATE_DDL_AUTO = "validate"
+    $env:FLYWAY_ENABLED = "true"
     $env:BOOTSTRAP_ADMIN_ENABLED = "true"
     $env:BOOTSTRAP_ADMIN_EMAIL = "admin@integration.test"
     $env:BOOTSTRAP_ADMIN_PASSWORD = "IntegrationAdmin123!"
@@ -141,6 +143,7 @@ try {
     $env:BOOTSTRAP_ADMIN_ENABLED = "false"
     $env:SERVER_PORT = "18082"
     $env:SPRING_DATASOURCE_URL = "jdbc:h2:mem:integration_restaurants;MODE=MySQL;DB_CLOSE_DELAY=-1"
+    $env:SPRING_JPA_DDL_AUTO = "validate"
     $env:USERS_ROLE_URL_TEMPLATE = "http://localhost:18081/internal/usuarios/{usuarioId}/roles/{rol}"
     $restaurantsProcess = Start-Process -FilePath $java `
         -ArgumentList ('-jar "' + $RestaurantsJar + '"') -PassThru `
