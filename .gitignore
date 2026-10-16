@@ -1,0 +1,29 @@
+# ===== Compilados / Maven =====
+target/
+build/
+out/
+bin/
+*.class
+
+# ===== IntelliJ IDEA =====
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# ===== Otros IDE =====
+.vscode/
+.settings/
+.project
+.classpath
+
+# ===== Sistema operativo =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Logs y temporales =====
+*.log
+logs/
+*.tmp
+*.bak
