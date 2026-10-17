@@ -6,6 +6,7 @@ import org.mapstruct.Mapping;
 import com.plazoleta.usuario.domain.model.Usuario;
 import com.plazoleta.usuario.infrastructure.input.rest.dto.CrearPropietarioRequest;
 import com.plazoleta.usuario.infrastructure.input.rest.dto.CrearPropietarioResponse;
+import com.plazoleta.usuario.infrastructure.input.rest.dto.UsuarioResponse;
 
 @Mapper(componentModel = "spring")
 public interface UsuarioRestMapper {
@@ -16,4 +17,6 @@ public interface UsuarioRestMapper {
 
     @Mapping(target = "mensaje", constant = "Propietario creado exitosamente")
     CrearPropietarioResponse toResponse(Usuario usuario);
+
+    UsuarioResponse toUsuarioResponse(Usuario usuario);
 }
