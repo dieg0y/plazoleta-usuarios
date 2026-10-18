@@ -4,9 +4,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.plazoleta.usuario.domain.model.Usuario;
+import com.plazoleta.usuario.infrastructure.input.rest.dto.CrearEmpleadoRequest;
 import com.plazoleta.usuario.infrastructure.input.rest.dto.CrearPropietarioRequest;
 import com.plazoleta.usuario.infrastructure.input.rest.dto.CrearPropietarioResponse;
+import com.plazoleta.usuario.infrastructure.input.rest.dto.EmpleadoResponse;
 import com.plazoleta.usuario.infrastructure.input.rest.dto.UsuarioResponse;
+import com.plazoleta.usuario.infrastructure.input.rest.dto.CrearEmpleadoRequest;
+import com.plazoleta.usuario.infrastructure.input.rest.dto.EmpleadoResponse;
 
 @Mapper(componentModel = "spring")
 public interface UsuarioRestMapper {
@@ -19,4 +23,11 @@ public interface UsuarioRestMapper {
     CrearPropietarioResponse toResponse(Usuario usuario);
 
     UsuarioResponse toUsuarioResponse(Usuario usuario);
+
+    // ===== HU4: empleados =====
+
+    @Mapping(target = "rol", ignore = true)
+    Usuario toDomain(CrearEmpleadoRequest request);
+
+    EmpleadoResponse toEmpleadoResponse(Usuario usuario);
 }
