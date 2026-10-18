@@ -76,8 +76,7 @@ class CrearPropietarioServiceTest {
         assertEquals(Rol.PROPIETARIO, resultado.getRol());
 
         // then — la especia: verificar CON QUÉ datos se llamó a guardar
-        verify(usuarioRepositoryPort).guardar(argThat(u ->
-                u.getRol() == Rol.PROPIETARIO
+        verify(usuarioRepositoryPort).guardar(argThat(u -> u.getRol() == Rol.PROPIETARIO
                 && "claveCodificada".equals(u.getClave())));
     }
 
@@ -112,6 +111,39 @@ class CrearPropietarioServiceTest {
         assertThrows(BusinessException.class,
                 () -> crearPropietarioService.crearPropietario(usuarioValido));
 
+        verify(usuarioRepositoryPort, never()).guardar(any(Usuario.class));
+    }
+
+    @Test
+    @DisplayName("Acepta a alguien que cumple 18 años exactamente hoy: caso borde")
+    void crearPropietario_conEdadExacta18Anos_debeSerAceptado() {
+        Usuario usuario = usuarioValido();
+        usuario.setFechaNacimiento(LocalDate.now().minusYears(18)); // cumple 18 hoy: caso borde
+
+        when(usuarioRepositoryPort.existePorCorreo(usuario.getCorreo())).thenReturn(false);
+        when(usuarioRepositoryPort.existePorDocumento(usuario.getDocumentoIdentidad())).thenReturn(false);
+        when(usuarioRepositoryPort.guardar(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        Usuario creado = crearPropietarioService.crearPropietario(usuario);
+
+        assertNotNull(creado);
+        verify(usuarioRepositoryPort).guardar(any(Usuario.class));
+    }
+
+    private Usuario usuarioValido() {
+        return usuarioValido;
+    }
+
+    @Test
+    @DisplayName("Rechaza una fecha de nacimiento futura")
+    void crearPropietario_conFechaNacimientoFutura_debeSerRechazado() {
+        Usuario usuario = usuarioValido();
+        usuario.setFechaNacimiento(LocalDate.now().plusDays(1));
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> crearPropietarioService.crearPropietario(usuario));
+
+        assertEquals("La fecha de nacimiento no puede ser futura", ex.getMessage());
         verify(usuarioRepositoryPort, never()).guardar(any(Usuario.class));
     }
 }
