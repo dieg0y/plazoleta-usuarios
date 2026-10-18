@@ -4,6 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.plazoleta.usuario.domain.model.Usuario;
+import com.plazoleta.usuario.infrastructure.input.rest.dto.ClienteResponse;
+import com.plazoleta.usuario.infrastructure.input.rest.dto.CrearClienteRequest;
 import com.plazoleta.usuario.infrastructure.input.rest.dto.CrearEmpleadoRequest;
 import com.plazoleta.usuario.infrastructure.input.rest.dto.CrearPropietarioRequest;
 import com.plazoleta.usuario.infrastructure.input.rest.dto.CrearPropietarioResponse;
@@ -28,4 +30,11 @@ public interface UsuarioRestMapper {
     Usuario toDomain(CrearEmpleadoRequest request);
 
     EmpleadoResponse toEmpleadoResponse(Usuario usuario);
+
+    // ===== HU8: clientes =====
+
+    @Mapping(target = "rol", ignore = true)
+    Usuario toDomain(CrearClienteRequest request);
+
+    ClienteResponse toClienteResponse(Usuario usuario);
 }

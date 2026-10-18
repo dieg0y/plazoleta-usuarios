@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * HU5: protección de endpoints por rol.
  *
  *  - POST /login        → público
+ *  - POST /clientes     → público (HU8: auto-registro de clientes)
  *  - POST /propietarios → solo ADMINISTRADOR
  *  - POST /empleados    → solo PROPIETARIO (llega con el token
  *                         reenviado desde el microservicio restaurante)
@@ -30,8 +31,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Público: login, Swagger y errores
+                // Público: login, auto-registro de clientes (HU8), Swagger y errores
                 .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/clientes").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/error").permitAll()
                 // HU5: protección por rol
                 .requestMatchers(HttpMethod.POST, "/propietarios").hasRole("ADMINISTRADOR")
