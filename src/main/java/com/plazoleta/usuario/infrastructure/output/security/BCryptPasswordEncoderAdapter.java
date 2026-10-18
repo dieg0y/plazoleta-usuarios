@@ -18,4 +18,10 @@ public class BCryptPasswordEncoderAdapter implements PasswordEncoderPort {
     public String encode(String clave) {
         return passwordEncoder.encode(clave);
     }
+
+        // HU5: verifica la clave del login contra el hash almacenado
+    @Override
+    public boolean matches(String clave, String claveEncriptada) {
+        return passwordEncoder.matches(clave, claveEncriptada);
+    }
 }

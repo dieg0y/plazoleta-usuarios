@@ -13,4 +13,7 @@ package com.plazoleta.usuario.application.port.output;
 public interface PasswordEncoderPort {
 
     String encode(String clave);
+
+    /** HU5: compara la clave en claro del login contra el hash almacenado. */
+    boolean matches(String clave, String claveEncriptada);
 }

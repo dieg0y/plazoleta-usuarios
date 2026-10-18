@@ -9,8 +9,6 @@ import com.plazoleta.usuario.infrastructure.input.rest.dto.CrearPropietarioReque
 import com.plazoleta.usuario.infrastructure.input.rest.dto.CrearPropietarioResponse;
 import com.plazoleta.usuario.infrastructure.input.rest.dto.EmpleadoResponse;
 import com.plazoleta.usuario.infrastructure.input.rest.dto.UsuarioResponse;
-import com.plazoleta.usuario.infrastructure.input.rest.dto.CrearEmpleadoRequest;
-import com.plazoleta.usuario.infrastructure.input.rest.dto.EmpleadoResponse;
 
 @Mapper(componentModel = "spring")
 public interface UsuarioRestMapper {

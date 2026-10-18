@@ -13,4 +13,7 @@ public interface UsuarioJpaRepository extends JpaRepository<UsuarioEntity, Long>
     boolean existsByCorreo(String correo);
 
     boolean existsByDocumentoIdentidad(String documentoIdentidad);
+
+    // HU5: login por correo
+    java.util.Optional<UsuarioEntity> findByCorreo(String correo);
 }

@@ -41,4 +41,10 @@ public class UsuarioPersistenceAdapter implements UsuarioRepositoryPort {
         return usuarioJpaRepository.findById(id)
                 .map(usuarioPersistenceMapper::toDomain);
     }
+
+    // HU5: login por correo
+    @Override
+    public java.util.Optional<com.plazoleta.usuario.domain.model.Usuario> obtenerPorCorreo(String correo) {
+        return usuarioJpaRepository.findByCorreo(correo).map(usuarioPersistenceMapper::toDomain);
+    }
 }
