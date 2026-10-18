@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
  * Orquesta las reglas de negocio:
  *  1. Campos obligatorios presentes.
  *  2. Formatos válidos (correo, celular, documento).
- *  3. Mayor de edad.
+ *  3. Mayor de edad (y fecha no futura).
  *  4. Unicidad de correo y documento (consulta por puerto).
  *  5. Clave cifrada (delegada al puerto de cifrado).
  *  6. Rol forzado a PROPIETARIO (lo decide el negocio, no el cliente).
@@ -114,6 +114,9 @@ public class CrearPropietarioService implements CrearPropietarioUseCase {
     }
 
     private void validarMayorDeEdad(LocalDate fechaNacimiento) {
+        if (fechaNacimiento.isAfter(LocalDate.now())) {
+            throw new BusinessException("La fecha de nacimiento no puede ser futura");
+        }
         int edad = Period.between(fechaNacimiento, LocalDate.now()).getYears();
         if (edad < EDAD_MINIMA) {
             throw new BusinessException("El usuario debe ser mayor de edad");
