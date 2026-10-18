@@ -13,4 +13,7 @@ public interface UsuarioRepositoryPort {
     boolean existePorDocumento(String documentoIdentidad);
 
     Optional<Usuario> obtenerPorId(Long id);
+
+    /** HU5: busca un usuario por correo para el login. */
+    java.util.Optional<Usuario> obtenerPorCorreo(String correo);
 }
