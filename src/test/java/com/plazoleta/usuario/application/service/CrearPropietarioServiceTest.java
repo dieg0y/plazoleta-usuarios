@@ -16,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -35,7 +34,6 @@ class CrearPropietarioServiceTest {
     @Mock
     private PasswordEncoderPort passwordEncoderPort;
 
-    @InjectMocks
     private CrearPropietarioService crearPropietarioService;
 
     private Usuario usuarioValido;
@@ -51,6 +49,11 @@ class CrearPropietarioServiceTest {
                 .correo("diego.test@correo.com")
                 .clave("claveSegura123")
                 .build();
+
+        crearPropietarioService = new CrearPropietarioService(
+                new ValidadorUsuario(usuarioRepositoryPort),
+                usuarioRepositoryPort,
+                passwordEncoderPort);
     }
 
     @Test
