@@ -28,8 +28,7 @@ public class UsuarioConsultaController {
     private final UsuarioRestMapper usuarioRestMapper;
 
     @Operation(summary = "Obtener un usuario por su id",
-               description = "Devuelve los datos públicos de un usuario (sin credenciales). "
-                           + "Utilizado por otros microservicios para validar existencia y rol.")
+               description = "Devuelve un resumen mínimo de usuario para consumidores internos, sin exponer datos sensibles.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
         @ApiResponse(responseCode = "400", description = "Usuario no encontrado")
@@ -37,6 +36,10 @@ public class UsuarioConsultaController {
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponse> obtenerUsuarioPorId(@PathVariable Long id) {
         Usuario usuario = obtenerUsuarioUseCase.obtenerUsuarioPorId(id);
-        return ResponseEntity.ok(usuarioRestMapper.toUsuarioResponse(usuario));
+        UsuarioResponse response = usuarioRestMapper.toUsuarioResponse(usuario);
+        response.setDocumentoIdentidad(null);
+        response.setCelular(null);
+        response.setFechaNacimiento(null);
+        return ResponseEntity.ok(response);
     }
 }

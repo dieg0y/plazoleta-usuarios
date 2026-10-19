@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
  * Validaciones comunes a TODA cuenta de usuario nueva (HU1):
  *  1. Campos obligatorios presentes.
  *  2. Formatos válidos (correo, celular, documento).
- *  3. Mayor de edad y fecha no futura.
+ *  3. Mayoría de edad para propietarios.
  *  4. Unicidad de correo y documento.
  *
  * Lo usan CrearPropietarioService y CrearEmpleadoService (HU4)
@@ -39,13 +39,19 @@ public class ValidadorUsuario {
 
     /** Ejecuta TODAS las validaciones de una cuenta nueva. */
     public void validarNuevoUsuario(Usuario usuario) {
-        validarCamposObligatorios(usuario);
+        validarNuevoUsuario(usuario, true);
+    }
+
+    public void validarNuevoUsuario(Usuario usuario, boolean requiereMayorDeEdad) {
+        validarCamposObligatorios(usuario, requiereMayorDeEdad);
         validarFormatos(usuario);
-        validarMayorDeEdad(usuario.getFechaNacimiento());
+        if (requiereMayorDeEdad) {
+            validarMayorDeEdad(usuario.getFechaNacimiento());
+        }
         validarUnicidad(usuario);
     }
 
-    private void validarCamposObligatorios(Usuario usuario) {
+    private void validarCamposObligatorios(Usuario usuario, boolean fechaNacimientoObligatoria) {
         if (usuario == null) {
             throw new BusinessException("El cuerpo de la petición es obligatorio");
         }
@@ -61,7 +67,7 @@ public class ValidadorUsuario {
         if (esVacio(usuario.getCelular())) {
             throw new BusinessException("El celular es obligatorio");
         }
-        if (usuario.getFechaNacimiento() == null) {
+        if (fechaNacimientoObligatoria && usuario.getFechaNacimiento() == null) {
             throw new BusinessException("La fecha de nacimiento es obligatoria");
         }
         if (esVacio(usuario.getCorreo())) {
