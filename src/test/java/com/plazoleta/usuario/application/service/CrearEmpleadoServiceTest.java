@@ -2,6 +2,7 @@ package com.plazoleta.usuario.application.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -81,14 +82,19 @@ class CrearEmpleadoServiceTest {
     }
 
     @Test
-    @DisplayName("Rechaza a un menor de edad")
-    void debeRechazarMenorDeEdad() {
-        empleadoValido.setFechaNacimiento(LocalDate.now().minusYears(17));
+    @DisplayName("Crea un empleado sin exigir fecha de nacimiento")
+    void debeCrearEmpleadoSinFechaDeNacimiento() {
+        empleadoValido.setFechaNacimiento(null);
+        when(usuarioRepositoryPort.existePorCorreo(anyString())).thenReturn(false);
+        when(usuarioRepositoryPort.existePorDocumento(anyString())).thenReturn(false);
+        when(passwordEncoderPort.encode("claveSegura123")).thenReturn("claveCodificada");
+        when(usuarioRepositoryPort.guardar(any(Usuario.class))).thenAnswer(invocacion -> invocacion.getArgument(0));
 
-        assertThrows(BusinessException.class,
-                () -> crearEmpleadoService.crearEmpleado(empleadoValido));
+        Usuario resultado = crearEmpleadoService.crearEmpleado(empleadoValido);
 
-        verify(usuarioRepositoryPort, never()).guardar(any(Usuario.class));
+        assertNotNull(resultado);
+        assertNull(resultado.getFechaNacimiento());
+        verify(usuarioRepositoryPort).guardar(any(Usuario.class));
     }
 
     @Test

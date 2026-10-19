@@ -8,9 +8,8 @@ import com.plazoleta.usuario.domain.model.Usuario;
 
 /**
  * CASO DE USO HU8: crear la cuenta de un cliente.
- * Auto-registro público con las mismas reglas que cualquier
- * usuario (las resuelve ValidadorUsuario), pero el rol queda
- * forzado a CLIENTE.
+ * Auto-registro público con validaciones de formato y unicidad; la fecha de
+ * nacimiento es opcional y el rol queda forzado a CLIENTE.
  */
 public class CrearClienteService implements CrearClienteUseCase {
 
@@ -28,7 +27,7 @@ public class CrearClienteService implements CrearClienteUseCase {
 
     @Override
     public Usuario crearCliente(Usuario usuario) {
-        validadorUsuario.validarNuevoUsuario(usuario);
+        validadorUsuario.validarNuevoUsuario(usuario, false);
 
         Usuario cliente = Usuario.builder()
                 .nombre(usuario.getNombre())

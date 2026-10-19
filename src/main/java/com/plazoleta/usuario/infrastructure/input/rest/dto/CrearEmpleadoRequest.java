@@ -27,7 +27,7 @@ public class CrearEmpleadoRequest {
     @Schema(description = "Celular (solo números, + opcional, máx 13)", example = "+573009876543")
     private String celular;
 
-    @Schema(description = "Fecha de nacimiento (YYYY-MM-DD)", example = "1998-03-10")
+    @Schema(description = "Fecha de nacimiento opcional (YYYY-MM-DD)", example = "1998-03-10")
     private LocalDate fechaNacimiento;
 
     @Schema(description = "Correo electrónico (usuario de acceso)", example = "ana.empleado@correo.com")

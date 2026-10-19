@@ -2,9 +2,11 @@ package com.plazoleta.usuario.infrastructure.output.persistence.adapter;
 
 import java.util.Optional;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 import com.plazoleta.usuario.application.port.output.UsuarioRepositoryPort;
+import com.plazoleta.usuario.domain.exception.BusinessException;
 import com.plazoleta.usuario.domain.model.Usuario;
 import com.plazoleta.usuario.infrastructure.output.persistence.entity.UsuarioEntity;
 import com.plazoleta.usuario.infrastructure.output.persistence.mapper.UsuarioPersistenceMapper;
@@ -21,9 +23,13 @@ public class UsuarioPersistenceAdapter implements UsuarioRepositoryPort {
 
     @Override
     public Usuario guardar(Usuario usuario) {
-        UsuarioEntity entity = usuarioPersistenceMapper.toEntity(usuario);
-        UsuarioEntity guardada = usuarioJpaRepository.save(entity);
-        return usuarioPersistenceMapper.toDomain(guardada);
+        try {
+            UsuarioEntity entity = usuarioPersistenceMapper.toEntity(usuario);
+            UsuarioEntity guardada = usuarioJpaRepository.save(entity);
+            return usuarioPersistenceMapper.toDomain(guardada);
+        } catch (DataIntegrityViolationException ex) {
+            throw new BusinessException("Ya existe un usuario con ese correo o documento");
+        }
     }
 
     @Override
