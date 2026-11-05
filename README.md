@@ -60,7 +60,7 @@ Swagger UI: <http://localhost:8080/swagger-ui/index.html>
 en ambos microservicios.
 El endpoint interno solo devuelve teléfonos de usuarios con rol CLIENTE.
 
-Los endpoints protegidos esperan el encabezado `Authorization: Bearer {JWT}`.
+Los endpoints protegidos esperan `Authorization: Bearer <JWT>`.
 El usuario se inicializa con cuentas BCrypt únicamente cuando `usuario` está vacía. En una
 base nueva, las cuentas de desarrollo son:
 
