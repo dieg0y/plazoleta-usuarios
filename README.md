@@ -33,6 +33,7 @@ servicio. No guardes credenciales ni secretos en Git:
 $env:DB_USERNAME = "root"
 $env:DB_PASSWORD = "<contraseña-local-de-MySQL>"
 $env:APP_JWT_SECRET = "<secreto-local-compartido-de-32-caracteres-o-más>"
+$env:APP_INTERNAL_TOKEN = "<secreto-interno-compartido-con-restaurante>"
 Set-Location <ruta>\usuario
 .\mvnw.cmd spring-boot:run
 ```
@@ -52,7 +53,12 @@ Swagger UI: <http://localhost:8080/swagger-ui/index.html>
 | POST | `/propietarios` | Crea un propietario | ADMINISTRADOR |
 | POST | `/empleados` | Crea un empleado | PROPIETARIO |
 | GET | `/usuarios/{id}` | Consulta los datos mínimos de usuario | ADMINISTRADOR o PROPIETARIO |
+| GET | `/internal/usuarios/{id}/celular` | Obtiene el teléfono de un cliente para notificaciones | `X-Internal-Token` |
 | GET | `/v3/api-docs` | Contrato OpenAPI | Público |
+
+`APP_INTERNAL_TOKEN` debe tener el mismo valor secreto de al menos 32 caracteres
+en ambos microservicios.
+El endpoint interno solo devuelve teléfonos de usuarios con rol CLIENTE.
 
 Los endpoints protegidos esperan el encabezado `Authorization: Bearer {JWT}`.
 El usuario se inicializa con cuentas BCrypt únicamente cuando `usuario` está vacía. En una
